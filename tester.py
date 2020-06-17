@@ -1,6 +1,6 @@
 from pi7db import pi7db,GET,OR,increment,decrement,dsc,asc,GT,LT,LET
 db = pi7db("Blog_Database")
-db.key("GodIsGreat")
+#db.key("Shivjeet")
 from datetime import datetime
 data = {
        "Name":"Shivjeet",
@@ -11,7 +11,7 @@ data = {
        
 db.temp_limt = 3
 
-db.changekey("GodIsGreat","Shivjeet")
+#db.changekey("GodIsGreat","")
 
 #print(db.changekey('NOENC','hello'))
 
@@ -57,6 +57,9 @@ import random
 #print(db.status())
 #print(db.write('obj',{"fi":"yo"}))
 print(db.status())
+
+#for x in db.status()['users']['Doc_Name']:
+  #print(x)
 # class Av:
 #   def hi(self):
 #     print("hello")

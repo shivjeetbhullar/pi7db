@@ -1,4 +1,4 @@
-import os,errno,hashlib,shutil,datetime,glob,random
+import os,errno,hashlib,shutil,datetime,random
 from .status import error,success,info
 from .functions.functions import *
 from .functions.subclass import subclass
@@ -44,7 +44,9 @@ class pi7db:
 
   def status(self):
     dic = {}
-    for f in [f for f in os.scandir(self.db_np) if f.is_dir()]:dic[f.name] = {"Total_Files":len(extractfiles(f.path,extract_kwargs({},self.db_name)))}
+    for f in [f for f in os.scandir(self.db_np) if f.is_dir()]:
+      doc = extractfiles(f.path,extract_kwargs({},self.db_name))
+      dic[f.name] = {"Total_Files":len(doc),"Doc_Name":map(lambda f:f.split("/")[-1],doc)}
     return dic     
 
   def write(self,coll_name,fn_dict,data=None):
