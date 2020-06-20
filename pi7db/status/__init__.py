@@ -8,7 +8,9 @@ class error:
     def e5(operator):
         return {"Error":f"{operator} Only Apply On Integers!","status":0}
     e6 = {"Error":"Error! Data Is Encrypted With Key Please Use Key Your Key. For Example db.key(YOUR_KEY) ","status":0}
-
+    def e7(old_name,new_name):
+      return {"Error":f"{old_name} Doc Not Exist!","status":0}
+    
 class success:
     def s0(file_name, coll_name):
       return {"success":f"Success! {file_name} Created in Collection {coll_name}!","status":1}
@@ -20,6 +22,8 @@ class success:
       return {"success":f"Deleted! {file_name}!","status":1}
     def s4(coll_name):
       return {"success":f"Deleted! Collection {coll_name.split('/')[-1]} Deleted Successfully!","status":1}
+    def s5(old_name,new_name):
+      return {"success":f"{old_name} Doc Is Renamed To {new_name} Successfully!","status":1}
     
 class info:
     i0 = {"info":f"Failed! Database Can't Be Deleted In This Way!","status":2}

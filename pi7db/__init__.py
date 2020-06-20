@@ -42,6 +42,13 @@ class pi7db:
     writedoc(self.config_file,{'secret-key':New_key})
    else:raise ValueError(error.e1)
 
+  def rename(self,coll_name,doc_name,new_name):
+    path,new_path = os.path.join(self.db_np,coll_name,doc_name),os.path.join(self.db_np,coll_name,new_name)
+    if os.path.exists(path):
+      os.rename(path,new_path)
+      return success.s5(doc_name,new_name)
+    else:return error.e7(doc_name)
+
   def status(self):
     dic = {}
     for f in [f for f in os.scandir(self.db_np) if f.is_dir()]:

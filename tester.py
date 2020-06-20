@@ -55,15 +55,20 @@ import random
 
 #db.trash(dropkey={"lvl":[{"$keys":["name"],"$where":{"name":(GT,98)}}]},where={"lvl":[{"name":(GT,98)}]})
 #print(db.status())
-#print(db.write('obj',{"fi":"yo"}))
-print(db.status())
+# #print(db.write('obj',{"fi":"yo"}))
+# db.write("users",'shivjeet',{'name':"shivjeet"})
+# db.write("users",'joban',{'name':"joban"})
 
+# db.write("us",'shivjeet',{'name':"shivjeet"})
+# db.write("us",'joban',{'name':"joban"})
+#print(db.read())
+#db.update("users",{"df":1},where={"name":"shivjeet"})
 #for x in db.status()['users']['Doc_Name']:
   #print(x)
 # class Av:
 #   def hi(self):
 #     print("hello")
-
+db.rename('users','shivjeet','shivjeetbhullar')
 # print(db.read())
 # data = db.read()['data'][0]['obj'][0]
 
