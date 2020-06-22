@@ -1,4 +1,4 @@
-import os,datetime,glob,random,pickle
+import os,datetime,glob,random,_pickle as pickle
 from ..operators import *
 from .. import cryptopidb as crdb
 from ..status import error,success,info
@@ -12,7 +12,7 @@ def opendoc(file_path,key=None):
 
 def writedoc(file_path,data,key=None):
      if key is None:
-      with open(f"{file_path}", "wb") as f:pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
+      with open(f"{file_path}", "wb") as f:pickle.dump(data, f)
       return True
      else:
       jsdata = pickle.dumps(data);crdb.encrypt_file(file_path,key.encode(),jsdata)
@@ -68,13 +68,19 @@ def trashbyfilter(dic_data,key_name,config):
   return True
 
 def nes_update(d_dict, update_dict,keymatch=None):
+    print(update_dict)
     for key, value in update_dict.items():
+        print(key,value)
         if isinstance(value, dict) and key != "$where":           
            if increment_v in value:d_dict[key] = d_dict[key]+value[increment_v]
            elif decrement_v in value:d_dict[key] = d_dict[key]+value[decrement_v]
            else:d_dict[key] = nes_update(d_dict.get(key, {}), value,keymatch)
         elif isinstance(value, list):
-            for x in d_dict[key]:
+            if all(isinstance(s, str) for s in value) or all(isinstance(i, int) for i in value):
+              if isinstance(d_dict[key],list):[d_dict[key].append(x) for x in value if x not in d_dict[key]]
+              else: d_dict[key] = value
+            elif isinstance(d_dict,dict):
+              for x in d_dict[key]:
                for xx in value:            
                   if "$where" in xx:nes_update(x,xx,xx['$where'])
                   else:nes_update(x,xx)
@@ -93,8 +99,7 @@ def updatebyfilter(dic_data,commands,config):
   for up_path in all_update:
     if not up_path[-9:] == "pi7dbauto":
       js_data=opendoc(up_path,config['secret-key'])
-      js_data=nes_update(js_data,commands)
-      print(js_data)
+      js_data=nes_update(js_data,commands)      
       writedoc(up_path,js_data,config['secret-key'])
     else:
       v_data = opendoc(up_path[:-9],config['secret-key'])

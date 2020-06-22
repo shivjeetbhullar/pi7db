@@ -5,7 +5,7 @@ from .functions.subclass import subclass
 from .operators import *
 
 class pi7db:
-  def __init__(self,db_name,db_path=os.getcwd()):
+  def __init__(self,db_name,db_path=""):
    self.db_np,self.db_name,self.doc_size,self.temp_limt = os.path.join(db_path,db_name),db_name,15000000,120
    self.config_file,self.coll_name = os.path.join(self.db_np,db_name),None
    if not os.path.exists(self.db_np):os.makedirs(self.db_np)
@@ -61,7 +61,8 @@ class pi7db:
    path,crt_time = os.path.join(self.db_np,coll_name),datetime.datetime.now().strftime("%Y%S%f");dc_id = f"{crt_time}{random.randint(10000, 99999)}"
    if data is None and isinstance(fn_dict,dict):fn_dict={'unid':dc_id,**fn_dict};writenodoc(path,fn_dict,self.config)
    else:
-    try: 
+    try:
+     
      data_dict={'unid':dc_id,**data}
      data_dict['cr_dc_path'] = f"{path}/{fn_dict}";create_coll(path)
      writedoc(data_dict['cr_dc_path'],data_dict,self.config['secret-key'])

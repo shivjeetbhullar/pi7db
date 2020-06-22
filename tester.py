@@ -1,5 +1,5 @@
 from pi7db import pi7db,GET,OR,increment,decrement,dsc,asc,GT,LT,LET
-db = pi7db("Blog_Database")
+db = pi7db("BLOGDB","pi7/DATABASE/")
 #db.key("Shivjeet")
 from datetime import datetime
 data = {
@@ -12,7 +12,7 @@ data = {
 db.temp_limt = 3
 
 #db.changekey("GodIsGreat","")
-
+up = {'category': ['test2'], 'postid': '5271beeead484903aa3cd9f0de5acdaa', 'posttags': ['Ranjit-Singh', 'Sikh'], 'Post_Html': "<p ><img src='http://127.0.0.1:5000/admin/static/gallery/jpg.jpeg' alt='Ranjit Singh' ><br ></p><p >Maharaja Ranjit Singh (13 November 1780 – 27 June 1839), popularly known as Sher-e-Punjab or 'Lion of Punjab', was the leader of the Sikh Empire, which ruled the northwest Indian subcontinent in the early half of the 19th century. He survived smallpox in infancy but lost sight in his left eye. He fought his first battle alongside his father at age 10. After his father died, he fought several wars to expel the Afghans in his teenage years and was proclaimed as the 'Maharaja of Punjab' at age 21. His empire grew in the Punjab region under his leadership through 1839.</p>", 'title': 'Ranjit Singh', 'featuredimage': 'http://127.0.0.1:5000/admin/static/gallery/jpg.jpeg', 'action': 'False', 'Date_f': ['22 June 2020', '2020-06-22'], 'views': 0, 'comments': {}, 'cr_language': 'en', 'url': 'Ranjit-Singh'}
 #print(db.changekey('NOENC','hello'))
 
 # print(db.js.read('h'))
@@ -44,12 +44,17 @@ db.temp_limt = 3
 
 startTime = datetime.now()
 import random
+#db.write("users",{"ds":"ds"})
+#db.trash(where={"unid":"20202473053438012"})
+db.update('en',up,where={"postid":"5271beeead484903aa3cd9f0de5acdaa"})
+print(db.read('en')['data'])
 
 #fdata = db.filter({"Name":"**"})
 #print(db.sortdict(fdata,{"Name"},order=dsc))
 #db.update({"test":{"test1":[{"user":random.randint(0,88888)}]}},where={"Name":"Johnson"})
-# for x in range(100):
-#  db.write("users",str(x),{"num":x,"lvl":[{"num":1,"name":x},{"num":2,"name":x+100}]})
+# for x in range(100000):
+#    db.write("test",{"num":x,"lvl":[{"num":1,"name":x},{"num":2,"name":x+100}]})
+#    print(x)
 
 #db.update("users","0",{"num":1})#{"lvl":[{"num":increment(100)}]},where={"num":(GT,1)})
 
@@ -68,7 +73,7 @@ import random
 # class Av:
 #   def hi(self):
 #     print("hello")
-db.rename('users','shivjeet','shivjeetbhullar')
+#db.rename('users','shivjeet','shivjeetbhullar')
 # print(db.read())
 # data = db.read()['data'][0]['obj'][0]
 
