@@ -45,6 +45,7 @@ class pi7db:
   def rename(self,coll_name,doc_name,new_name):
     path,new_path = os.path.join(self.db_np,coll_name,doc_name),os.path.join(self.db_np,coll_name,new_name)
     if os.path.exists(path):
+      self.update(coll_name,doc_name,{"cr_dc_path":new_path})
       os.rename(path,new_path)
       return success.s5(doc_name,new_name)
     else:return error.e7(doc_name)

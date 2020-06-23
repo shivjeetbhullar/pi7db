@@ -46,9 +46,11 @@ startTime = datetime.now()
 import random
 #db.write("users",{"ds":"ds"})
 #db.trash(where={"unid":"20202473053438012"})
-db.update('en',up,where={"postid":"5271beeead484903aa3cd9f0de5acdaa"})
-print(db.read('en')['data'])
+#db.update('en',up,where={"postid":"5271beeead484903aa3cd9f0de5acdaa"})
+#print(db.read('en')['data'])
 
+db.rename("en","Ranjit-Singh","Ranjit_Singh_Test")
+print(db.read("en"))
 #fdata = db.filter({"Name":"**"})
 #print(db.sortdict(fdata,{"Name"},order=dsc))
 #db.update({"test":{"test1":[{"user":random.randint(0,88888)}]}},where={"Name":"Johnson"})

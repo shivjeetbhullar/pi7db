@@ -8,7 +8,7 @@ class error:
     def e5(operator):
         return {"Error":f"{operator} Only Apply On Integers!","status":0}
     e6 = {"Error":"Error! Data Is Encrypted With Key Please Use Key Your Key. For Example db.key(YOUR_KEY) ","status":0}
-    def e7(old_name,new_name):
+    def e7(old_name):
       return {"Error":f"{old_name} Doc Not Exist!","status":0}
     
 class success:
