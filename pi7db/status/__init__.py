@@ -10,12 +10,13 @@ class error:
     e6 = {"Error":"Error! Data Is Encrypted With Key Please Use Key Your Key. For Example db.key(YOUR_KEY) ","status":0}
     def e7(old_name):
       return {"Error":f"{old_name} Doc Not Exist!","status":0}
-    
+    e8 = {"Error":"Error! Collection Name Is Require For Write Data During Update.","status":0}
+
 class success:
     def s0(file_name, coll_name):
       return {"success":f"Success! {file_name} Created in Collection {coll_name}!","status":1}
-    def s1(file_name):
-      return {"success":f"Success! Value Update in {file_name}!","status":1}
+    def s1(counter):
+      return {"success":f"Success! {counter} Values Updated","status":1}
     def s2(key_name,file_name):
       return {"success":f"Deleted! {key_name} Deleted From {file_name}!","status":1}
     def s3(file_name):

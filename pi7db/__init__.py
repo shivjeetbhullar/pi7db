@@ -60,38 +60,38 @@ class pi7db:
   def write(self,coll_name,fn_dict,data=None):
    self.key(self.config)
    path,crt_time = os.path.join(self.db_np,coll_name),datetime.datetime.now().strftime("%Y%S%f");dc_id = f"{crt_time}{random.randint(10000, 99999)}"
-   if data is None and isinstance(fn_dict,dict):fn_dict={'unid':dc_id,**fn_dict};writenodoc(path,fn_dict,self.config)
+   if data is None and isinstance(fn_dict,dict):fn_dict={'unid':dc_id,**fn_dict};return writenodoc(path,fn_dict,self.config)
    else:
     try:
-     
      data_dict={'unid':dc_id,**data}
      data_dict['cr_dc_path'] = f"{path}/{fn_dict}";create_coll(path)
      writedoc(data_dict['cr_dc_path'],data_dict,self.config['secret-key'])
      return success.s0(fn_dict, self.coll_name)
     except Exception as e:return error.e4
-  
+   
   def update(self,coll_name,file_name=None,data_arg=None,**kwargs):
    self.key(self.config)
    if "where" in kwargs:
      if isinstance(coll_name,str) and isinstance(file_name,dict):
-       if isinstance(kwargs['where'],list) or isinstance(kwargs['where'],tuple):updatebyfilter(self.filter(coll_name,*kwargs['where'])['data'],file_name,self.config)
-       else:updatebyfilter(self.filter(coll_name,kwargs['where'])['data'],file_name,self.config)
-       return True
+       if isinstance(kwargs['where'],list) or isinstance(kwargs['where'],tuple):updatebyfilter(self.filter(coll_name,*kwargs['where'])['data'],file_name,{**self.config,**kwargs,"coll_name":coll_name,"write_func":self.write})
+       else:return updatebyfilter(self.filter(coll_name,kwargs['where'])['data'],file_name,{**self.config,**kwargs,"coll_name":coll_name,"write_func":self.write})
      if isinstance(coll_name,dict) and file_name is None:
-      if isinstance(kwargs['where'],list) or isinstance(kwargs['where'],tuple):updatebyfilter(self.filter(coll_name,*kwargs['where'])['data'],coll_name,self.config)
-      else:updatebyfilter(self.filter(kwargs['where'])['data'],coll_name,self.config)
-      return True 
+      if isinstance(kwargs['where'],list) or isinstance(kwargs['where'],tuple):updatebyfilter(self.filter(coll_name,*kwargs['where'])['data'],coll_name,{**self.config,**kwargs})
+      else:return updatebyfilter(self.filter(kwargs['where'])['data'],coll_name,{**self.config,**kwargs})
    try:
     js_data=opendoc(f"{self.db_np}/{coll_name}/{file_name}",self.config['secret-key'])
-    if isinstance(data_arg,dict):js_data=nes_update(js_data,data_arg)
+    if isinstance(data_arg,dict):js_data=nes_update(js_data,data_arg,**kwargs)
     else:return error.e2
     writedoc(f"{self.db_np}/{coll_name}/{file_name}",js_data,self.config['secret-key'])
-    return success.s1(file_name)
+    return success.s1(1)
    except OSError as e:
     if isinstance(file_name,dict):
-     file_name = None
-     if e.errno == errno.ENOENT:return error.e3(file_name)
-    else:return e
+     if 'write' in kwargs and kwargs['write']==True:return self.write(coll_name,file_name)
+     else:
+      if e.errno == errno.ENOENT:return error.e3(None)
+    elif e.errno == 2:
+      if 'write' in kwargs and kwargs['write']==True:return self.write(coll_name,file_name,data_arg)
+      else:return e
 
   def read(self,coll_name=None,file_name=None,key_name=None,**kwargs):
    self.key(self.config)

@@ -1,6 +1,7 @@
 from pi7db import pi7db,GET,OR,increment,decrement,dsc,asc,GT,LT,LET
-db = pi7db("BLOGDB","pi7/DATABASE/")
-#db.key("Shivjeet")
+#db = pi7db("BLOGDB","pi7/DATABASE/")
+db = pi7db('Blog_Database')
+db.key("Shivjeet")
 from datetime import datetime
 data = {
        "Name":"Shivjeet",
@@ -44,13 +45,14 @@ up = {'category': ['test2'], 'postid': '5271beeead484903aa3cd9f0de5acdaa', 'post
 
 startTime = datetime.now()
 import random
-#db.write("users",{"ds":"ds"})
+print(db.update("us",{"ds":[5,6]},where={'ds':[1,2]},write=True))
+print(db.read('us'))
 #db.trash(where={"unid":"20202473053438012"})
 #db.update('en',up,where={"postid":"5271beeead484903aa3cd9f0de5acdaa"})
-#print(db.read('en')['data'])
-
-db.rename("en","Ranjit-Singh","Ranjit_Singh_Test")
-print(db.read("en"))
+#print(db.update('en',{"shivjeet":7},where={"unid":"dfs"},write=True))
+#print(db.read("en"))
+#db.rename("en","Ranjit_Singh_Test","Ranjit-Singh")
+#print(db.filter("en",{"postid":"5271beeead484903aa3cd9f0de5acdaa"}))
 #fdata = db.filter({"Name":"**"})
 #print(db.sortdict(fdata,{"Name"},order=dsc))
 #db.update({"test":{"test1":[{"user":random.randint(0,88888)}]}},where={"Name":"Johnson"})

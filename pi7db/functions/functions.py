@@ -67,23 +67,22 @@ def trashbyfilter(dic_data,key_name,config):
         writedoc(tr_path[:-9],v_data,config['secret-key'])
   return True
 
-def nes_update(d_dict, update_dict,keymatch=None):
-    print(update_dict)
+def nes_update(d_dict, update_dict,keymatch=None,**kwargs):
     for key, value in update_dict.items():
-        print(key,value)
         if isinstance(value, dict) and key != "$where":           
            if increment_v in value:d_dict[key] = d_dict[key]+value[increment_v]
            elif decrement_v in value:d_dict[key] = d_dict[key]+value[decrement_v]
-           else:d_dict[key] = nes_update(d_dict.get(key, {}), value,keymatch)
+           else:d_dict[key] = nes_update(d_dict.get(key, {}), value,keymatch,**kwargs)
         elif isinstance(value, list):
             if all(isinstance(s, str) for s in value) or all(isinstance(i, int) for i in value):
-              if isinstance(d_dict[key],list):[d_dict[key].append(x) for x in value if x not in d_dict[key]]
+              if 'append_list' in kwargs and kwargs['append_list']==True:
+               if isinstance(d_dict[key],list):[d_dict[key].append(x) for x in value if x not in d_dict[key]]
               else: d_dict[key] = value
             elif isinstance(d_dict,dict):
               for x in d_dict[key]:
                for xx in value:            
-                  if "$where" in xx:nes_update(x,xx,xx['$where'])
-                  else:nes_update(x,xx)
+                  if "$where" in xx:nes_update(x,xx,xx['$where'],**kwargs)
+                  else:nes_update(x,xx,**kwargs)
         else:
            if key != "$where":
             if keymatch is None:d_dict[key] = value
@@ -99,26 +98,25 @@ def updatebyfilter(dic_data,commands,config):
   for up_path in all_update:
     if not up_path[-9:] == "pi7dbauto":
       js_data=opendoc(up_path,config['secret-key'])
-      js_data=nes_update(js_data,commands)      
+      js_data=nes_update(js_data,commands,**config)
       writedoc(up_path,js_data,config['secret-key'])
     else:
       v_data = opendoc(up_path[:-9],config['secret-key'])
       if isinstance(v_data,list):
-        for x_data in v_data:x_data=nes_update(x_data,commands) 
+        for x_data in v_data:x_data=nes_update(x_data,commands,**config)
         writedoc(up_path[:-9],v_data,config['secret-key'])
-  return success.s1(commands)
+  return success.s1(len(dic_data))
+ else:
+   if 'write' in config and config['write']==True:
+     if "coll_name" in config:return config['write_func'](config['coll_name'], commands)
+     else:return error.e8
 
 def appendjson(file_path,data,key=None):
-     if key is None:
       l_data = opendoc(file_path,key)
       l_data.append(data)
       writedoc(file_path,l_data,key) 
-     else:
-      dic_data = json.loads(crdb.decrypt_file(file_path,key.encode()))
-      dic_data.append(data)
-      dic_data = json.dumps(dic_data);crdb.encrypt_file(file_path,key.encode(),dic_data)
-     return True
-
+      return success.s1(1)
+     
 def writenodoc(col_path,dic_data,config):
      path,files=f"{col_path}/{datetime.date.today().year}",[]
      if not os.path.exists(path):os.makedirs(path)
@@ -126,11 +124,12 @@ def writenodoc(col_path,dic_data,config):
       if os.path.getsize(x) < config['doc_size']:files.append(x)
      if len(files):
        dic_data['cr_dc_path'] = f"{files[0]}pi7dbauto"
-       appendjson(files[0],dic_data,config['secret-key'])
+       return appendjson(files[0],dic_data,config['secret-key'])
      else:
        cr_time = datetime.datetime.now().strftime("%Y%M%S%f")
        dic_data['cr_dc_path'] = f"{path}/{cr_time}{random.randint(10000, 99999)}pi7dbauto"
        writedoc(dic_data['cr_dc_path'][:-9],[dic_data],config['secret-key'])
+       return success.s1(1)
 
 def extract_kwargs(kw_dic,db_name):
      if 'IGNORE' in kw_dic:
