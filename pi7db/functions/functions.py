@@ -35,7 +35,10 @@ def nes_trash(d_dict, update_dict,keymatch=None):
         elif isinstance(value, set):
           for x in value:d_dict[key].pop(x)
         elif isinstance(value, list):
-            for x in d_dict[key]:
+            if all(isinstance(s, str) for s in value) or all(isinstance(i, int) for i in value):
+              [d_dict[key].remove(x) for x in value]
+            else:
+             for x in d_dict[key]:
                for xx in value:
                   if isinstance(xx, set):
                    for xxx in xx:x.pop(xxx)
@@ -43,7 +46,7 @@ def nes_trash(d_dict, update_dict,keymatch=None):
                      for xk in xx['$keys']:
                         if findDiff(xx['$where'],x):x.pop(xk)
                   else:nes_trash(x,xx)
-            [d_dict[key].remove(x) for x in d_dict[key] if len(x) == 0]
+             [d_dict[key].remove(x) for x in d_dict[key] if len(x) == 0]
     return d_dict
 
 def trashbyfilter(dic_data,key_name,config):

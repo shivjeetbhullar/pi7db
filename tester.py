@@ -45,8 +45,14 @@ up = {'category': ['test2'], 'postid': '5271beeead484903aa3cd9f0de5acdaa', 'post
 
 startTime = datetime.now()
 import random
-print(db.update("us",{"ds":[5,6]},where={'ds':[1,2]},write=True))
-print(db.read('us'))
+
+#db.write("ss","nn",{"list":[1,2,3,4]})
+#print(db.update("us",{"ds":[5,6]},where={'ds':[1,2]},write=True))
+
+db.trash('ss','nn',{"list":[1]})
+
+print(db.read('ss'))
+
 #db.trash(where={"unid":"20202473053438012"})
 #db.update('en',up,where={"postid":"5271beeead484903aa3cd9f0de5acdaa"})
 #print(db.update('en',{"shivjeet":7},where={"unid":"dfs"},write=True))
