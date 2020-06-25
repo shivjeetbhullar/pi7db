@@ -1,7 +1,7 @@
 from pi7db import pi7db,GET,OR,increment,decrement,dsc,asc,GT,LT,LET
 #db = pi7db("BLOGDB","pi7/DATABASE/")
-db = pi7db('Blog_Database')
-db.key("Shivjeet")
+db = pi7db('BLOGDB',"pi7")
+#db.key("Shivjeet")
 from datetime import datetime
 data = {
        "Name":"Shivjeet",
@@ -46,15 +46,16 @@ up = {'category': ['test2'], 'postid': '5271beeead484903aa3cd9f0de5acdaa', 'post
 startTime = datetime.now()
 import random
 from pi7db import replace_in_list
-#db.write("ss","nn",{"list":[1,2,3,4]})
+#db.write("ss","nn",{"list":["go","yo","no"]})
 #print(db.update("us",{"ds":[5,6]},where={'ds':[1,2]},write=True))
 
 #db.trash('ss','nn',{"list":[1]})
 
 #
 
-db.update("ss","nn",{"list":replace_in_list(2,9)})
-print(db.read('ss'))
+#db.update("ss","nn",{"list":replace_in_list("go","gooo")})
+
+print(db.filter({"category":['**']}))
 
 #db.trash(where={"unid":"20202473053438012"})
 #db.update('en',up,where={"postid":"5271beeead484903aa3cd9f0de5acdaa"})

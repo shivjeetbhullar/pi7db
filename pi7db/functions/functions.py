@@ -72,7 +72,7 @@ def trashbyfilter(dic_data,key_name,config):
 
 def nes_update(d_dict, update_dict,keymatch=None,**kwargs):
     for key, value in update_dict.items():
-        if "$replace" in value:
+        if isinstance(value, dict) and "$replace" in value:
           for x_v in value['$replace'][0]:
             if x_v in d_dict[key]:d_dict[key].remove(x_v)
           for x_v in value['$replace'][1]:
@@ -170,15 +170,13 @@ def check_GT_LT(d1,d2):
     else:return False
 
 def checkli_stin(l1,l2):
-    return all(item in l2 for item in l1)
-
+  return all([True if any(string_filter(x,item) for item in l2) else False for x in l1])
+  
 def string_filter(d1,d2):
     if d1[-2:] == '**' and d1[:2] == '**':
         if d1[:-2][2:] in d2:return True
-    elif d1[-2:] == '**':
-        if d2[:len(d1[:-2])] == d1[:-2]:return True
-    elif d1[:2] == '**':
-        if d2[-int(len(d1[2:])):] == d1[2:]:return True
+    elif d1[-2:] == '**':return d2.startswith(d1[:-2])
+    elif d1[:2] == '**':return d2.endswith(d1[2:])
     elif d1 == d2:return True
     else:return False
 
@@ -190,33 +188,29 @@ def checklist(l1,l2):
     if output is None or output is True:return True 
     else:return False
 
-boole = False
 def findDiff(d1, d2):
-    global boole
     for key in d1:
       if (key not in d2):pass
       else:
         if isinstance(d1[key],dict):
-            if findDiff(d1[key],d2[key]) is False:return False
+          if findDiff(d1[key],d2[key]) is False:return False
         elif type(d1[key]) is list:
           if all(isinstance(s, dict) for s in d1[key]):
-            if checklist(d1[key],d2[key]) is False:boole = False;return False
+            if checklist(d1[key],d2[key]) is False:return False
           if all(isinstance(s, str) for s in d1[key]) or all(isinstance(i, int) for i in d1[key]):
-              if checkli_stin(d1[key],d2[key]):boole = True
-              else:boole = False;return False
+            if checkli_stin(d1[key],d2[key]):return True
+            else:return False
         else:
           # <,> = Operators
           if isinstance(d1[key],tuple):
-             if check_GT_LT(d1[key],d2[key]):boole = True
-             else:boole = False;return False
-          #STRING FILTER
+            if check_GT_LT(d1[key],d2[key]):return True
+            else:return False
+          # STRING FILTER
           elif isinstance(d1[key],str):
-            if string_filter(d1[key],d2[key]):boole = True
-            else:boole = False;return False
-          elif d1[key] == d2[key]:boole = True
-          else:boole = False;return False
-    
-    return boole
+            if string_filter(d1[key],d2[key]):return True
+            else:return False
+          elif d1[key] == d2[key]:return True
+          else:return False
 
 def andfilter(command_tup,all_data):
   return [x for x in all_data if findDiff(command_tup,x) is True]
