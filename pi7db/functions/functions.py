@@ -35,18 +35,18 @@ def nes_trash(d_dict, update_dict,keymatch=None):
         elif isinstance(value, set):
           for x in value:d_dict[key].pop(x)
         elif isinstance(value, list):
-            if all(isinstance(s, str) for s in value) or all(isinstance(i, int) for i in value):
-              [d_dict[key].remove(x) for x in value]
-            else:
-             for x in d_dict[key]:
-               for xx in value:
-                  if isinstance(xx, set):
-                   for xxx in xx:x.pop(xxx)
-                  elif "$where" and "$keys" in xx:
-                     for xk in xx['$keys']:
-                        if findDiff(xx['$where'],x):x.pop(xk)
-                  else:nes_trash(x,xx)
-             [d_dict[key].remove(x) for x in d_dict[key] if len(x) == 0]
+          if all(isinstance(s, str) for s in value) or all(isinstance(i, int) for i in value):
+            [d_dict[key].remove(x) for x in value]
+          else:
+           for x in d_dict[key]:
+            for xx in value:
+              if isinstance(xx, set):
+               for xxx in xx:x.pop(xxx)
+              elif "$where" and "$keys" in xx:
+               for xk in xx['$keys']:
+                  if findDiff(xx['$where'],x):x.pop(xk)
+              else:nes_trash(x,xx)
+           [d_dict[key].remove(x) for x in d_dict[key] if len(x) == 0]
     return d_dict
 
 def trashbyfilter(dic_data,key_name,config):
@@ -72,24 +72,29 @@ def trashbyfilter(dic_data,key_name,config):
 
 def nes_update(d_dict, update_dict,keymatch=None,**kwargs):
     for key, value in update_dict.items():
-        if isinstance(value, dict) and key != "$where":           
-           if increment_v in value:d_dict[key] = d_dict[key]+value[increment_v]
-           elif decrement_v in value:d_dict[key] = d_dict[key]+value[decrement_v]
-           else:d_dict[key] = nes_update(d_dict.get(key, {}), value,keymatch,**kwargs)
+        if "$replace" in value:
+          for x_v in value['$replace'][0]:
+            if x_v in d_dict[key]:d_dict[key].remove(x_v)
+          for x_v in value['$replace'][1]:
+            if x_v not in d_dict[key]:d_dict[key].append(x_v)
+        elif isinstance(value, dict) and key != "$where":    
+          if increment_v in value:d_dict[key] = d_dict[key]+value[increment_v]
+          elif decrement_v in value:d_dict[key] = d_dict[key]+value[decrement_v]
+          else:d_dict[key] = nes_update(d_dict.get(key, {}), value,keymatch,**kwargs)
         elif isinstance(value, list):
-            if all(isinstance(s, str) for s in value) or all(isinstance(i, int) for i in value):
-              if 'append_list' in kwargs and kwargs['append_list']==True:
-               if isinstance(d_dict[key],list):[d_dict[key].append(x) for x in value if x not in d_dict[key]]
-              else: d_dict[key] = value
-            elif isinstance(d_dict,dict):
-              for x in d_dict[key]:
-               for xx in value:            
-                  if "$where" in xx:nes_update(x,xx,xx['$where'],**kwargs)
-                  else:nes_update(x,xx,**kwargs)
+          if all(isinstance(s, str) for s in value) or all(isinstance(i, int) for i in value):
+            if 'append_list' in kwargs and kwargs['append_list']==True:
+             if isinstance(d_dict[key],list):[d_dict[key].append(x) for x in value if x not in d_dict[key]]
+            else: d_dict[key] = value
+          elif isinstance(d_dict,dict):
+            for x in d_dict[key]:
+             for xx in value:            
+               if "$where" in xx:nes_update(x,xx,xx['$where'],**kwargs)
+               else:nes_update(x,xx,**kwargs)
         else:
-           if key != "$where":
-            if keymatch is None:d_dict[key] = value
-            elif isinstance(keymatch,dict) and findDiff(keymatch,d_dict):d_dict[key] = value
+          if key != "$where":
+           if keymatch is None:d_dict[key] = value
+           elif isinstance(keymatch,dict) and findDiff(keymatch,d_dict):d_dict[key] = value
     return d_dict
 
 def updatebyfilter(dic_data,commands,config):
