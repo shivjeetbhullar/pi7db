@@ -36,7 +36,7 @@ def nes_trash(d_dict, update_dict,keymatch=None):
           for x in value:d_dict[key].pop(x)
         elif isinstance(value, list):
           if all(isinstance(s, str) for s in value) or all(isinstance(i, int) for i in value):
-            [d_dict[key].remove(x) for x in value]
+            [d_dict[key].remove(x) for x in value if x in d_dict[key]]
           else:
            for x in d_dict[key]:
             for xx in value:
@@ -212,8 +212,8 @@ def findDiff(d1, d2):
           elif d1[key] == d2[key]:return True
           else:return False
 
-def andfilter(command_tup,all_data):
-  return [x for x in all_data if findDiff(command_tup,x) is True]
+def andfilter(command_tup,all_data,kwargs):
+  return [x for x in all_data if findDiff(command_tup,x) is True][kwargs['f_a']:kwargs['l_a']]
 
 def create_coll(path):
   if not os.path.exists(path):os.mkdir(path)

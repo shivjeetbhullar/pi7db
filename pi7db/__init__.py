@@ -156,6 +156,7 @@ class pi7db:
   def filter(self,*command_tup,**kwargs):
    self.key(self.config)
    un_ex_kwargs,kwargs = kwargs,extract_kwargs(kwargs,self.db_name)
+   if "IGNORE" in kwargs:un_ex_kwargs={"IGNORE":kwargs["IGNORE"]}
    if isinstance(command_tup[0],str):command_tup,all_data = list(command_tup[1:]),self.read(command_tup[0],**un_ex_kwargs)
    elif 'dict' in kwargs:all_data = kwargs['dict']
    else:all_data = self.read(**un_ex_kwargs) 
@@ -164,10 +165,10 @@ class pi7db:
     for x_p in command_tup:
       if x_p != OR:command_arr.append(x_p)
     for command in command_arr:
-     data_get = andfilter(command,all_data['data'])
-     for x in data_get[kwargs['f_a']:kwargs['l_a']]:
+     data_get = andfilter(command,all_data['data'],kwargs)
+     for x in data_get:
       if x not in r_data['data']:r_data['data'].append(x)
     return r_data
    else:
-    for x_r in andfilter(command_tup[0],all_data['data'])[kwargs['f_a']:kwargs['l_a']]:r_data['data'].append(x_r)
+    for x_r in andfilter(command_tup[0],all_data['data'],kwargs):r_data['data'].append(x_r)
     return r_data

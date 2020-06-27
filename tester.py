@@ -55,8 +55,12 @@ from pi7db import replace_in_list
 
 #db.update("ss","nn",{"list":replace_in_list("go","gooo")})
 
-print(db.filter({"category":['**']}))
+print(len(db.filter('en',{"name":'**'},FROM=12,TO=24)['data']))
 
+#for x in range(100):
+  #db.write('en',str(x),{"num":x,"name":"dsdsd"})
+
+#print(len(db.read()['data']))
 #db.trash(where={"unid":"20202473053438012"})
 #db.update('en',up,where={"postid":"5271beeead484903aa3cd9f0de5acdaa"})
 #print(db.update('en',{"shivjeet":7},where={"unid":"dfs"},write=True))
