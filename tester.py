@@ -45,7 +45,7 @@ up = {'category': ['test2'], 'postid': '5271beeead484903aa3cd9f0de5acdaa', 'post
 
 startTime = datetime.now()
 import random
-from pi7db import replace_in_list
+from pi7db import replace_in_list,csv,GT
 #db.write("ss","nn",{"list":["go","yo","no"]})
 #print(db.update("us",{"ds":[5,6]},where={'ds':[1,2]},write=True))
 
@@ -53,9 +53,22 @@ from pi7db import replace_in_list
 
 #
 
+
+
+
+print(db.exists('0'))
+
+
+#print(csvdb.trash({"Date":"**25"}))
+#print(len(csvdb.filter({"Open":(GT,58.01)})['data']))
+
+
+
+#print(csvdb.write('filter.csv',csvdb.sort(csvdb.filter({"Open":(GT,58.01)}),{"Close"})))
+
 #db.update("ss","nn",{"list":replace_in_list("go","gooo")})
 
-print(len(db.filter('en',{"name":'**'},FROM=12,TO=24)['data']))
+#print(len(db.filter('en',{"name":'**'},FROM=12,TO=24)['data']))
 
 #for x in range(100):
   #db.write('en',str(x),{"num":x,"name":"dsdsd"})

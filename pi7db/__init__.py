@@ -1,4 +1,4 @@
-import os,errno,hashlib,shutil,datetime,random
+import os,errno,hashlib,shutil,datetime,random,csv as csvm
 from .status import error,success,info
 from .functions.functions import *
 from .functions.subclass import subclass
@@ -56,6 +56,12 @@ class pi7db:
       doc = extractfiles(f.path,extract_kwargs({},self.db_name))
       dic[f.name] = {"Total_Files":len(doc),"Doc_Name":map(lambda f:f.split("/")[-1],doc)}
     return dic     
+  
+  def exists(self,file_name,coll_name=None):
+    status = self.status()
+    for x in status:
+      if file_name in status[x]['Doc_Name']:return True
+      else:False
 
   def write(self,coll_name,fn_dict,data=None):
    self.key(self.config)
@@ -172,3 +178,76 @@ class pi7db:
    else:
     for x_r in andfilter(command_tup[0],all_data['data'],kwargs):r_data['data'].append(x_r)
     return r_data
+
+class csv:
+  def __init__(self,file_path=None):    
+   self.file_path = file_path
+  
+  def read(self,**kwargs):
+    kwargs = extract_kwargs(kwargs,"")
+    def checkdigit(num):
+      if num.isdigit():return int(num)
+      else:
+        try:return float(num)
+        except:return num
+    if 'csv_str' in kwargs:csvreader = csvm.reader(kwargs['csv_str'].splitlines()) 
+    else:
+     with open(self.file_path, 'r') as csvfile:csvreader = csvm.reader(csvfile)
+    self.fields = list(filter(lambda x: x != "", next(csvreader)))
+    rows = [row for row in csvreader]
+    self.rows_num = csvreader.line_num
+    data = {"data":[],"status":1}
+    for row in rows[kwargs['f_a']:kwargs['l_a']]:
+     dic,c = {},0
+     for col in row[:len(self.fields)]:
+        dic[self.fields[c]] = checkdigit(col)
+        c+=1
+     data['data'].append(dic)
+    return data
+  
+  def filter(self,*command_tup,**kwargs):
+   kwargs = extract_kwargs(kwargs,self.file_path)
+   if 'dict' in kwargs:all_data=kwargs['dict']['data']
+   else:all_data = self.read()['data']
+   r_data,command_arr= {"data":[],'status':1},[]
+   if OR in command_tup:
+    for x_p in command_tup:
+      if x_p != OR:command_arr.append(x_p)
+    for command in command_arr:
+     data_get = andfilter(command,all_data,kwargs)
+     for x in data_get:
+      if x not in r_data['data']:r_data['data'].append(x)
+    return r_data
+   else:
+    for x_r in andfilter(command_tup[0],all_data,kwargs):r_data['data'].append(x_r)
+    return r_data
+    
+  def write(self,file_path,data):
+    with open(file_path, 'w', newline='') as file:
+     writer = csvm.writer(file)
+     writer.writerow(self.fields)
+     writer.writerows([x.values() for x in data['data']])
+    return {f"Sucesss! {file_path} Is Created."}
+  
+  def sort(self,dict_data,sort_key,**kwargs):
+   kwargs,order,r_data = extract_kwargs(kwargs,self.file_path),False,{"data":dict_data['data'],"status":1}
+   if "order" in kwargs:order = kwargs['order']
+   if isinstance(sort_key,set):
+    key_tup = "i"+str([[x] for x in sort_key])[1:-1].replace(', ',"")
+    r_data['data'] = sorted(r_data['data'][kwargs['f_a']:kwargs['l_a']], key = lambda i:(exec('global s;s = %s' % key_tup),s),reverse=order)
+   else: 
+    if isinstance(sort_key,str):r_data['data'][kwargs['f_a']:kwargs['l_a']] = sorted(r_data['data'],key = lambda i: i[sort_key],reverse=order)
+   return r_data
+  
+  def trash(self,command):
+   data = self.read()
+   for x in data['data']:
+     if findDiff(command,x):data['data'].remove(x)
+   return data
+
+  def update(self,data_arg=None,**kwargs):
+   if "where" in kwargs:
+    data = self.read()
+    for x in data['data']:
+     if findDiff(command,x):x.update(data_arg)
+    return data

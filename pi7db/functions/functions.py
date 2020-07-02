@@ -25,7 +25,7 @@ def extractfiles(path,Dic_data):
         if x not in remove_files:data_files.append(f"{root}/{x}")
   return data_files
 
-def nes_trash(d_dict, update_dict,keymatch=None):
+def nes_trash(d_dict,update_dict,keymatch=None):
     if isinstance(update_dict, set):
       for x in update_dict:d_dict.pop(x)
     else:
@@ -155,16 +155,16 @@ def extract_kwargs(kw_dic,db_name):
      else:return {"f_a":None,"l_a":None,"IGNORE":kw_dic["IGNORE"]}
 
 def check_GT_LT(d1,d2):
-    if GT == d1[0] and isinstance(d1[1],int):
+    if GT == d1[0] and isinstance(d1[1],int) or isinstance(d1[1],float):
         if d1[1] < d2:return True
         else:return False
-    elif LT == d1[0] and isinstance(d1[1],int):
+    elif LT == d1[0] and isinstance(d1[1],int) or isinstance(d1[1],float):
         if d1[1] > d2:return True
         else:return False
-    elif GET == d1[0] and isinstance(d1[1],int):
+    elif GET == d1[0] and isinstance(d1[1],int) or isinstance(d1[1],float):
         if d1[1] <= d2:return True
         else:return False
-    elif LET == d1[0] and isinstance(d1[1],int):
+    elif LET == d1[0] and isinstance(d1[1],int) or isinstance(d1[1],float):
         if d1[1] >= d2:return True
         else:return False
     else:return False
@@ -173,12 +173,14 @@ def checkli_stin(l1,l2):
   return all([True if any(string_filter(x,item) for item in l2) else False for x in l1])
   
 def string_filter(d1,d2):
+   try: 
     if d1[-2:] == '**' and d1[:2] == '**':
         if d1[:-2][2:] in d2:return True
     elif d1[-2:] == '**':return d2.startswith(d1[:-2])
     elif d1[:2] == '**':return d2.endswith(d1[2:])
     elif d1 == d2:return True
     else:return False
+   except:return False
 
 def checklist(l1,l2):
     for xx in enumerate(l1):
@@ -190,7 +192,7 @@ def checklist(l1,l2):
 
 def findDiff(d1, d2):
     for key in d1:
-      if (key not in d2):pass
+      if (key not in d2):return False
       else:
         if isinstance(d1[key],dict):
           if findDiff(d1[key],d2[key]) is False:return False
@@ -198,20 +200,18 @@ def findDiff(d1, d2):
           if all(isinstance(s, dict) for s in d1[key]):
             if checklist(d1[key],d2[key]) is False:return False
           if all(isinstance(s, str) for s in d1[key]) or all(isinstance(i, int) for i in d1[key]):
-            if checkli_stin(d1[key],d2[key]):return True
-            else:return False
+            if not checkli_stin(d1[key],d2[key]):return False
         else:
           # <,> = Operators
           if isinstance(d1[key],tuple):
-            if check_GT_LT(d1[key],d2[key]):return True
-            else:return False
+            if not check_GT_LT(d1[key],d2[key]):return False
           # STRING FILTER
           elif isinstance(d1[key],str):
-            if string_filter(d1[key],d2[key]):return True
-            else:return False
-          elif d1[key] == d2[key]:return True
+            if not string_filter(d1[key],d2[key]):return False
+          elif d1[key] == d2[key]:pass
           else:return False
-
+    return True
+    
 def andfilter(command_tup,all_data,kwargs):
   return [x for x in all_data if findDiff(command_tup,x) is True][kwargs['f_a']:kwargs['l_a']]
 
