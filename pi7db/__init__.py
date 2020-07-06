@@ -3,6 +3,7 @@ from .status import error,success,info
 from .functions.functions import *
 from .functions.subclass import subclass
 from .operators import *
+from pathlib import Path
 
 class pi7db:
   def __init__(self,db_name,db_path=""):
@@ -57,11 +58,16 @@ class pi7db:
       dic[f.name] = {"Total_Files":len(doc),"Doc_Name":map(lambda f:f.split("/")[-1],doc)}
     return dic     
   
-  def exists(self,file_name,coll_name=None):
-    status = self.status()
-    for x in status:
-      if file_name in status[x]['Doc_Name']:return True
-      else:False
+  def exists(self,file_name,coll_name=None,**kwargs):
+    if coll_name is not None:data_files = extractfiles(f"{self.db_np}/{coll_name}",kwargs)
+    else:data_files = extractfiles(f"{self.db_np}",extract_kwargs(kwargs,self.db_name))
+    for x_file in data_files:
+     if file_name == x_file.split('/')[-1]:
+      if 'today' in kwargs and kwargs['today']==True:
+        if datetime.date.today() == datetime.date.fromtimestamp(Path(x_file).stat().st_mtime):return True
+        else:return False
+      else:return True
+    return False
 
   def write(self,coll_name,fn_dict,data=None):
    self.key(self.config)
@@ -131,10 +137,22 @@ class pi7db:
    elif file_name is not None and isinstance(file_name,str):
      os.remove(f"{self.db_np}/{coll_name}/{file_name}")
      return success.s3(file_name)
-   elif coll_name is not None and isinstance(coll_name,str):
-     shutil.rmtree(f"{self.db_np}/{coll_name}", ignore_errors=False, onerror=None)
-     return success.s4(coll_name)
- 
+   elif coll_name is not None:
+     if isinstance(coll_name,str):coll_name = [coll_name]
+     if 'IGNORE' in kwargs:
+       if isinstance(kwargs['IGNORE'],str):kwargs['IGNORE'] = [kwargs['IGNORE']]
+       for x in coll_name:
+        for x_file in extractfiles(f"{self.db_np}/{x}",kwargs):os.remove(x_file)
+     else:
+      for x in coll_name:shutil.rmtree(f"{self.db_np}/{x}", ignore_errors=False, onerror=None)
+      return success.s4(",".join(coll_name))
+   elif coll_name is None and 'IGNORE_COLLECTION' in kwargs:
+      collections = list(self.status().keys())
+      if isinstance(kwargs['IGNORE_COLLECTION'],str):kwargs['IGNORE_COLLECTION'] = [kwargs['IGNORE_COLLECTION']]
+      for x in kwargs['IGNORE_COLLECTION']:collections.remove(x)
+      for x in collections:shutil.rmtree(f"{self.db_np}/{x}", ignore_errors=False, onerror=None)
+      return success.s4(",".join(collections))
+
   def sort(self,coll_name,command_tup=None,**kwargs):
    self.key(self.config)
    un_ex_kwargs,kwargs,order = kwargs,extract_kwargs(kwargs,self.db_name),False

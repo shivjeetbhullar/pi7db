@@ -46,17 +46,17 @@ up = {'category': ['test2'], 'postid': '5271beeead484903aa3cd9f0de5acdaa', 'post
 startTime = datetime.now()
 import random
 from pi7db import replace_in_list,csv,GT
-#db.write("ss","nn",{"list":["go","yo","no"]})
+#db.write("en","000",{"list":["go","yo","no"]})
 #print(db.update("us",{"ds":[5,6]},where={'ds':[1,2]},write=True))
 
 #db.trash('ss','nn',{"list":[1]})
 
 #
 
+#print(db.status().keys())
+print(db.trash(IGNORE_COLLECTION="sa"))
 
-
-
-print(db.exists('0'))
+#print(db.exists('000',today=True))
 
 
 #print(csvdb.trash({"Date":"**25"}))

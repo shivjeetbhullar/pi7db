@@ -4,7 +4,8 @@ import quandl
 import quandl
 quandl.ApiConfig.api_key = 'yBszqj3yZqpk5j2PVy8y'
 
-data = quandl.get('NSE/MARUTI')
+#data = quandl.get('NSE/MARUTI')
+data = quandl.get("FRED/GDP", start_date="2001-12-31", end_date="2005-12-31")
 
 print("got data")
 
@@ -12,7 +13,7 @@ data = data.to_csv(index=False)
 
 csvdb = csv()
 
-print(csvdb.read(csv_str=data)['data'][0])
+print(csvdb.read(csv_str=data)['data'])
 
 
 
