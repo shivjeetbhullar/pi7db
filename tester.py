@@ -1,6 +1,6 @@
 from pi7db import pi7db,GET,OR,increment,decrement,dsc,asc,GT,LT,LET
 #db = pi7db("BLOGDB","pi7/DATABASE/")
-db = pi7db('BLOGDB',"pi7")
+db = pi7db('DB')
 #db.key("Shivjeet")
 from datetime import datetime
 data = {
@@ -53,8 +53,8 @@ from pi7db import replace_in_list,csv,GT
 
 #
 
-#print(db.status().keys())
-print(db.trash(IGNORE_COLLECTION="sa"))
+print(db.filter({"data":[{"lastPrice":"98.95"}]}))
+#print(db.trash(IGNORE_COLLECTION="sa"))
 
 #print(db.exists('000',today=True))
 

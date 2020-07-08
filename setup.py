@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pi7db", 
-    version="0.3.6",
+    version="0.3.7",
     author="Shivjeet Singh Bhullar",
     author_email="bhullarshivjeet@gmail.com",
     description="pi7db Is A Fast And Powerfull Directory Based Database Built In Python3.",

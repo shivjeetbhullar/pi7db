@@ -201,16 +201,17 @@ class csv:
   def __init__(self,file_path=None):    
    self.file_path = file_path
   
-  def read(self,**kwargs):
+  def csv_read(self,**kwargs):
     kwargs = extract_kwargs(kwargs,"")
     def checkdigit(num):
       if num.isdigit():return int(num)
       else:
         try:return float(num)
         except:return num
-    if 'csv_str' in kwargs:csvreader = csvm.reader(kwargs['csv_str'].splitlines()) 
+    if 'csv_str' in kwargs:csvreader = csvm.reader([x for x in kwargs['csv_str'].splitlines() if x != "" or x.isspace()])
     else:
      with open(self.file_path, 'r') as csvfile:csvreader = csvm.reader(csvfile)
+    
     self.fields = list(filter(lambda x: x != "", next(csvreader)))
     rows = [row for row in csvreader]
     self.rows_num = csvreader.line_num
@@ -223,10 +224,10 @@ class csv:
      data['data'].append(dic)
     return data
   
-  def filter(self,*command_tup,**kwargs):
+  def csv_filter(self,*command_tup,**kwargs):
    kwargs = extract_kwargs(kwargs,self.file_path)
    if 'dict' in kwargs:all_data=kwargs['dict']['data']
-   else:all_data = self.read()['data']
+   else:all_data = self.csv_read()['data']
    r_data,command_arr= {"data":[],'status':1},[]
    if OR in command_tup:
     for x_p in command_tup:
@@ -240,14 +241,20 @@ class csv:
     for x_r in andfilter(command_tup[0],all_data,kwargs):r_data['data'].append(x_r)
     return r_data
     
-  def write(self,file_path,data):
-    with open(file_path, 'w', newline='') as file:
-     writer = csvm.writer(file)
-     writer.writerow(self.fields)
-     writer.writerows([x.values() for x in data['data']])
-    return {f"Sucesss! {file_path} Is Created."}
+  def csv_write(self,data,file_path=None,**kwargs):
+    if 'write' in kwargs and kwargs['write'] is False:
+      csv_str = ''
+      csv_str+=','.join(list(data['data'][0].keys()))
+      csv_str+=''.join([f"{','.join(map(str, x.values()))}\n" for x in data['data']])
+      return csv_str
+    else:
+     with open(file_path, 'w', newline='') as file:
+      writer = csvm.writer(file)
+      writer.writerow(list(data['data'][0].keys()))
+      writer.writerows([x.values() for x in data['data']])
+     return {f"Sucesss! {file_path} Is Created."}
   
-  def sort(self,dict_data,sort_key,**kwargs):
+  def csv_sort(self,dict_data,sort_key,**kwargs):
    kwargs,order,r_data = extract_kwargs(kwargs,self.file_path),False,{"data":dict_data['data'],"status":1}
    if "order" in kwargs:order = kwargs['order']
    if isinstance(sort_key,set):
@@ -257,15 +264,15 @@ class csv:
     if isinstance(sort_key,str):r_data['data'][kwargs['f_a']:kwargs['l_a']] = sorted(r_data['data'],key = lambda i: i[sort_key],reverse=order)
    return r_data
   
-  def trash(self,command):
+  def csv_trash(self,command):
    data = self.read()
    for x in data['data']:
      if findDiff(command,x):data['data'].remove(x)
    return data
 
-  def update(self,data_arg=None,**kwargs):
+  def csv_update(self,data_arg=None,**kwargs):
    if "where" in kwargs:
-    data = self.read()
+    data = self.csv_read()
     for x in data['data']:
      if findDiff(command,x):x.update(data_arg)
     return data
