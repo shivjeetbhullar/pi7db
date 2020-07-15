@@ -71,11 +71,13 @@ class pi7db:
 
   def write(self,coll_name,fn_dict,data=None):
    self.key(self.config)
-   path,crt_time = os.path.join(self.db_np,coll_name),datetime.datetime.now().strftime("%Y%S%f");dc_id = f"{crt_time}{random.randint(10000, 99999)}"
-   if data is None and isinstance(fn_dict,dict):fn_dict={'unid':dc_id,**fn_dict};return writenodoc(path,fn_dict,self.config)
+   path = os.path.join(self.db_np,coll_name)
+   if data is None and isinstance(fn_dict,dict) or all([isinstance(x,dict) for x in fn_dict]):
+    if isinstance(fn_dict,list):return writenodoc(path,fn_dict,self.config)
+    else:fn_dict={'unid':unid(),**fn_dict};return writenodoc(path,fn_dict,self.config)
    else:
     try:
-     data_dict={'unid':dc_id,**data}
+     data_dict={'unid':unid(),**data}
      data_dict['cr_dc_path'] = f"{path}/{fn_dict}";create_coll(path)
      writedoc(data_dict['cr_dc_path'],data_dict,self.config['secret-key'])
      return success.s0(fn_dict, self.coll_name)
@@ -181,53 +183,59 @@ class pi7db:
    self.key(self.config)
    un_ex_kwargs,kwargs = kwargs,extract_kwargs(kwargs,self.db_name)
    if "IGNORE" in kwargs:un_ex_kwargs={"IGNORE":kwargs["IGNORE"]}
-   if isinstance(command_tup[0],str):command_tup,all_data = list(command_tup[1:]),self.read(command_tup[0],**un_ex_kwargs)
+   if isinstance(command_tup[0],str):command_tup,all_data = list(command_tup[1:]),[command_tup[0]]
    elif 'dict' in kwargs:all_data = kwargs['dict']
-   else:all_data = self.read(**un_ex_kwargs) 
+   else:all_data = list(self.status().keys())
    r_data,command_arr= {"data":[],'status':1},[]
    if OR in command_tup:
     for x_p in command_tup:
       if x_p != OR:command_arr.append(x_p)
     for command in command_arr:
-     data_get = andfilter(command,all_data['data'],kwargs)
-     for x in data_get:
-      if x not in r_data['data']:r_data['data'].append(x)
+     data_get = no_freeze_filter(self,command,all_data,kwargs,un_ex_kwargs)
+     for x_l in data_get:
+      for x in x_l:
+       if x not in r_data['data']:r_data['data'].append(x)
     return r_data
    else:
-    for x_r in andfilter(command_tup[0],all_data['data'],kwargs):r_data['data'].append(x_r)
+    for x_L in no_freeze_filter(self,command_tup[0],all_data,kwargs,un_ex_kwargs):
+      for x_r in x_L:r_data['data'].append(x_r)
     return r_data
 
 class csv:
   def __init__(self,file_path=None):    
    self.file_path = file_path
   
-  def csv_read(self,**kwargs):
+  def csv_read(self,file_path=None,**kwargs):
+    if file_path is not None:self.file_path = file_path
     kwargs = extract_kwargs(kwargs,"")
     def checkdigit(num):
-      if num.isdigit():return int(num)
+      if "no_int" in kwargs:return num
       else:
-        try:return float(num)
-        except:return num
+       if num.isdigit():return int(num)
+       else:
+         try:return float(num)
+         except:return num
     if 'csv_str' in kwargs:csvreader = csvm.reader([x for x in kwargs['csv_str'].splitlines() if x != "" or x.isspace()])
     else:
-     with open(self.file_path, 'r') as csvfile:csvreader = csvm.reader(csvfile)
-    
-    self.fields = list(filter(lambda x: x != "", next(csvreader)))
-    rows = [row for row in csvreader]
-    self.rows_num = csvreader.line_num
+     with open(self.file_path, 'r') as csvfile:
+       csvreader = csvm.reader(csvfile)
+       self.fields = list(filter(lambda x: x != "", next(csvreader)))
+       rows = [row for row in csvreader]
+       self.rows_num = csvreader.line_num
     data = {"data":[],"status":1}
     for row in rows[kwargs['f_a']:kwargs['l_a']]:
-     dic,c = {},0
-     for col in row[:len(self.fields)]:
-        dic[self.fields[c]] = checkdigit(col)
-        c+=1
-     data['data'].append(dic)
+     if any(row):
+      dic,c = {},0
+      for col in row[:len(self.fields)]:
+         dic[self.fields[c]] = checkdigit(col)
+         c+=1
+      data['data'].append(dic)
     return data
   
   def csv_filter(self,*command_tup,**kwargs):
    kwargs = extract_kwargs(kwargs,self.file_path)
-   if 'dict' in kwargs:all_data=kwargs['dict']['data']
-   else:all_data = self.csv_read()['data']
+   if 'dict' in kwargs:all_data=kwargs.pop('dict')['data']
+   else:all_data = self.csv_read(**kwargs)['data']
    r_data,command_arr= {"data":[],'status':1},[]
    if OR in command_tup:
     for x_p in command_tup:

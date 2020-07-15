@@ -18,6 +18,10 @@ def writedoc(file_path,data,key=None):
       jsdata = pickle.dumps(data);crdb.encrypt_file(file_path,key.encode(),jsdata)
       return True
 
+def unid():
+  crt_time = datetime.datetime.now().strftime("%Y%S%f")
+  return f"{crt_time}{random.randint(10000, 99999)}"
+
 def extractfiles(path,Dic_data):
   remove_files,data_files = [f"{x}" for x in Dic_data['IGNORE']],[]
   for root, dirs, files in os.walk(path):
@@ -121,7 +125,8 @@ def updatebyfilter(dic_data,commands,config):
 
 def appendjson(file_path,data,key=None):
       l_data = opendoc(file_path,key)
-      l_data.append(data)
+      if isinstance(data,list):l_data.extend(data)
+      else:l_data.append(data)
       writedoc(file_path,l_data,key) 
       return success.s1(1)
      
@@ -131,13 +136,28 @@ def writenodoc(col_path,dic_data,config):
      for x in glob.glob(f"{path}/*"):
       if os.path.getsize(x) < config['doc_size']:files.append(x)
      if len(files):
-       dic_data['cr_dc_path'] = f"{files[0]}pi7dbauto"
+       if isinstance(dic_data,list):
+         if len(dic_data) and 'unid' not in dic_data[0]:
+           for x in dic_data:x = {'unid':unid(),**x,'cr_dc_path':f"{files[0]}pi7dbauto"}
+       else:dic_data['cr_dc_path'] = f"{files[0]}pi7dbauto"
        return appendjson(files[0],dic_data,config['secret-key'])
      else:
-       cr_time = datetime.datetime.now().strftime("%Y%M%S%f")
-       dic_data['cr_dc_path'] = f"{path}/{cr_time}{random.randint(10000, 99999)}pi7dbauto"
-       writedoc(dic_data['cr_dc_path'][:-9],[dic_data],config['secret-key'])
-       return success.s1(1)
+       if isinstance(dic_data,list):
+         if 'unid' not in dic_data[0]:
+           for x in dic_data:
+             cr_time = datetime.datetime.now().strftime("%Y%M%S%f")
+             x = {'unid':unid(),**x,'cr_dc_path':f"{path}/{cr_time}{random.randint(10000, 99999)}pi7dbauto"}
+         writenodoc(col_path,dic_data[0],config)
+         writenodoc(col_path,dic_data[1:],config)
+       else:
+        cr_time = datetime.datetime.now().strftime("%Y%M%S%f")
+        dic_data['cr_dc_path'] = f"{path}/{cr_time}{random.randint(10000, 99999)}pi7dbauto"
+        writedoc(dic_data['cr_dc_path'][:-9],[dic_data],config['secret-key'])
+        return success.s1(1)
+
+def no_freeze_filter(self,command,data,kwargs,un_ex_kwargs):
+  if isinstance(data,dict):return [andfilter(command,data['data'],kwargs)]
+  elif isinstance(data,list):return [andfilter(command,self.read(x,**un_ex_kwargs)['data'],kwargs) for x in data]
 
 def extract_kwargs(kw_dic,db_name):
      if 'IGNORE' in kw_dic:
@@ -169,11 +189,12 @@ def check_GT_LT(d1,d2):
         else:return False
     else:return False
 
-def checkli_stin(l1,l2):
-  return all([True if any(string_filter(x,item) for item in l2) else False for x in l1])
-  
-def string_filter(d1,d2):
-   try: 
+def checkli_stin(l1,l2,config):
+  return all([True if any(string_filter(x,item,config) for item in l2) else False for x in l1])
+
+def string_filter(d1,d2,config):
+   try:
+    if "senstive_case" in config and config["senstive_case"] == False:d1,d2=d1.lower(),d2.lower()
     if d1[-2:] == '**' and d1[:2] == '**':
         if d1[:-2][2:] in d2:return True
     elif d1[-2:] == '**':return d2.startswith(d1[:-2])
@@ -190,7 +211,7 @@ def checklist(l1,l2):
     if output is None or output is True:return True 
     else:return False
 
-def findDiff(d1, d2):
+def findDiff(d1, d2,config={}):
     for key in d1:
       if (key not in d2):return False
       else:
@@ -207,13 +228,13 @@ def findDiff(d1, d2):
             if not check_GT_LT(d1[key],d2[key]):return False
           # STRING FILTER
           elif isinstance(d1[key],str):
-            if not string_filter(d1[key],d2[key]):return False
+            if not string_filter(d1[key],d2[key],config):return False
           elif d1[key] == d2[key]:pass
           else:return False
     return True
     
 def andfilter(command_tup,all_data,kwargs):
-  return [x for x in all_data if findDiff(command_tup,x) is True][kwargs['f_a']:kwargs['l_a']]
+  return [x for x in all_data if findDiff(command_tup,x,kwargs) is True][kwargs['f_a']:kwargs['l_a']]
 
 def create_coll(path):
   if not os.path.exists(path):os.mkdir(path)

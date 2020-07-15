@@ -17,8 +17,8 @@ print("got data")
 csvdb = csv()
 
 data = csvdb.csv_read(csv_str=dat)
-
-print(csvdb.csv_write(data,write=False))
+print(data)
+#print(csvdb.csv_write(data,write=False))
 
 #csvdb = csv('maruti.csv')
 
