@@ -221,7 +221,7 @@ def findDiff(d1, d2,config={}):
           if all(isinstance(s, dict) for s in d1[key]):
             if checklist(d1[key],d2[key]) is False:return False
           if all(isinstance(s, str) for s in d1[key]) or all(isinstance(i, int) for i in d1[key]):
-            if not checkli_stin(d1[key],d2[key]):return False
+            if not checkli_stin(d1[key],d2[key],config):return False
         else:
           # <,> = Operators
           if isinstance(d1[key],tuple):

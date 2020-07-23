@@ -23,7 +23,8 @@ class pi7db:
     return SubClass
   
   def key(self,password):
-   self.config=opendoc(f"{self.config_file}")
+   if 'load_point' in self.config:return self.config
+   else:self.config={**opendoc(f"{self.config_file}"),'load_point':1}
    
    if isinstance(password,dict):
      if password['secret-key'] is None and self.config['secret-key'] is not None:raise ValueError(error.e6)
@@ -200,6 +201,26 @@ class pi7db:
     for x_L in no_freeze_filter(self,command_tup[0],all_data,kwargs,un_ex_kwargs):
       for x_r in x_L:r_data['data'].append(x_r)
     return r_data
+  
+  def readkey(self,coll_name=None,**kwargs):
+   if not 'key' in kwargs:raise KeyError("Key Is Required")
+   self.key(self.config)
+   r_data,kwargs = {"data":[],"status":1},extract_kwargs(kwargs,self.db_name)
+   if isinstance(kwargs['key'],str):kwargs['key'] = [kwargs['key']]
+   if coll_name is not None:data_files = extractfiles(f"{self.db_np}/{coll_name}",kwargs)
+   else:data_files = extractfiles(f"{self.db_np}",kwargs)
+   for x_file in data_files[kwargs['f_a']:kwargs['l_a']]:
+     o_data = opendoc(x_file,self.config['secret-key'])
+     if isinstance(o_data,list):
+       for x_dict in o_data:
+         dic={}
+         for x in kwargs['key']:dic[x] = x_dict[x]
+         r_data['data'].append(dic)
+     else:
+       dic={}
+       for x in kwargs['key']:dic[x] = o_data[x]
+       r_data['data'].append(dic)
+   return r_data
 
 class csv:
   def __init__(self,file_path=None):    
