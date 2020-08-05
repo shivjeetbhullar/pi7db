@@ -115,7 +115,8 @@ def updatebyfilter(dic_data,commands,config):
     else:
       v_data = opendoc(up_path[:-9],config['secret-key'])
       if isinstance(v_data,list):
-        for x_data in v_data:x_data=nes_update(x_data,commands,**config)
+        for x_data in v_data:
+          if findDiff(config['where'],x_data):x_data=nes_update(x_data,commands,**config)
         writedoc(up_path[:-9],v_data,config['secret-key'])
   return success.s1(len(dic_data))
  else:
