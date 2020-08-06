@@ -214,11 +214,15 @@ class pi7db:
      if isinstance(o_data,list):
        for x_dict in o_data:
          dic={}
-         for x in kwargs['key']:dic[x] = x_dict[x]
+         try:
+           for x in kwargs['key']:dic[x] = x_dict[x]
+         except:pass
          r_data['data'].append(dic)
      else:
        dic={}
-       for x in kwargs['key']:dic[x] = o_data[x]
+       try:
+         for x in kwargs['key']:dic[x] = o_data[x]
+       except:pass
        r_data['data'].append(dic)
    return r_data
 

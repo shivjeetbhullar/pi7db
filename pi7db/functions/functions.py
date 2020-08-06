@@ -47,8 +47,8 @@ def nes_trash(d_dict,update_dict,keymatch=None):
               if isinstance(xx, set):
                for xxx in xx:x.pop(xxx)
               elif "$where" and "$keys" in xx:
-               for xk in xx['$keys']:
-                  if findDiff(xx['$where'],x):x.pop(xk)
+               if findDiff(xx['$where'],x):
+                for xk in xx['$keys']:x.pop(xk)
               else:nes_trash(x,xx)
            [d_dict[key].remove(x) for x in d_dict[key] if len(x) == 0]
     return d_dict
@@ -91,9 +91,13 @@ def nes_update(d_dict, update_dict,keymatch=None,**kwargs):
              if isinstance(d_dict[key],list):[d_dict[key].append(x) for x in value if x not in d_dict[key]]
             else: d_dict[key] = value
           elif isinstance(d_dict,dict):
+            if 'append_list' in kwargs and kwargs['append_list']==True:
+              if isinstance(d_dict[key],list):d_dict[key].append(*value)
+              else:d_dict[key] = value
+              return d_dict
             for x in d_dict[key]:
-             for xx in value:            
-               if "$where" in xx:nes_update(x,xx,xx['$where'],**kwargs)
+             for xx in value:         
+               if "$where" in xx:nes_update(x,xx,xx['$where'],**kwargs)                 
                else:nes_update(x,xx,**kwargs)
         else:
           if key != "$where":

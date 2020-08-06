@@ -3,19 +3,21 @@ from pi7db import pi7db,GET,OR,increment,decrement,dsc,asc,GT,LT,LET
 db = pi7db('Students','Web/DATABASE')
 #db.key("Shivjeet")
 from datetime import datetime
-data = {
-       "Name":"Shivjeet",
-       "Surname":"Bhullar",
-       "Tel-Number":9876543210,
-       "Age":20
-       }
+
+data = {'exam': 'PHD', 'que': 'fdsf', 'ans': 'gdsgs', 'oans': 'sfd,gsd'}
        
 db.temp_limt = 3
 
-print(db.update({'ds':"ddddddddddddd"},where={'unid':"20205656492644070"}))
-print(db.read())
+
+
+
+#print(db.update("exams",data.pop('exam'),{"data":[data]},append_list=True))
+print(db.trash("exams",data.pop('exam'),{"data":[{"$keys":['ans','oans','que'],'$where':{'ans':'gdsgs'}}]}))
+print(db.read('exams'))
+#print(db.update({'ds':"ddddddddddddd"},where={'unid':"20205656492644070"}))
+#print(db.read())
 #db.changekey("GodIsGreat","")
-up = {'category': ['test2'], 'postid': '5271beeead484903aa3cd9f0de5acdaa', 'posttags': ['Ranjit-Singh', 'Sikh'], 'Post_Html': "<p ><img src='http://127.0.0.1:5000/admin/static/gallery/jpg.jpeg' alt='Ranjit Singh' ><br ></p><p >Maharaja Ranjit Singh (13 November 1780 – 27 June 1839), popularly known as Sher-e-Punjab or 'Lion of Punjab', was the leader of the Sikh Empire, which ruled the northwest Indian subcontinent in the early half of the 19th century. He survived smallpox in infancy but lost sight in his left eye. He fought his first battle alongside his father at age 10. After his father died, he fought several wars to expel the Afghans in his teenage years and was proclaimed as the 'Maharaja of Punjab' at age 21. His empire grew in the Punjab region under his leadership through 1839.</p>", 'title': 'Ranjit Singh', 'featuredimage': 'http://127.0.0.1:5000/admin/static/gallery/jpg.jpeg', 'action': 'False', 'Date_f': ['22 June 2020', '2020-06-22'], 'views': 0, 'comments': {}, 'cr_language': 'en', 'url': 'Ranjit-Singh'}
+#up = {'category': ['test2'], 'postid': '5271beeead484903aa3cd9f0de5acdaa', 'posttags': ['Ranjit-Singh', 'Sikh'], 'Post_Html': "<p ><img src='http://127.0.0.1:5000/admin/static/gallery/jpg.jpeg' alt='Ranjit Singh' ><br ></p><p >Maharaja Ranjit Singh (13 November 1780 – 27 June 1839), popularly known as Sher-e-Punjab or 'Lion of Punjab', was the leader of the Sikh Empire, which ruled the northwest Indian subcontinent in the early half of the 19th century. He survived smallpox in infancy but lost sight in his left eye. He fought his first battle alongside his father at age 10. After his father died, he fought several wars to expel the Afghans in his teenage years and was proclaimed as the 'Maharaja of Punjab' at age 21. His empire grew in the Punjab region under his leadership through 1839.</p>", 'title': 'Ranjit Singh', 'featuredimage': 'http://127.0.0.1:5000/admin/static/gallery/jpg.jpeg', 'action': 'False', 'Date_f': ['22 June 2020', '2020-06-22'], 'views': 0, 'comments': {}, 'cr_language': 'en', 'url': 'Ranjit-Singh'}
 #print(db.changekey('NOENC','hello'))
 
 # print(db.js.read('h'))
