@@ -244,9 +244,9 @@ class csv:
     else:
      with open(self.file_path, 'r') as csvfile:
        csvreader = csvm.reader(csvfile)
-       self.fields = list(filter(lambda x: x != "", next(csvreader)))
-       rows = [row for row in csvreader]
-       self.rows_num = csvreader.line_num
+    self.fields = list(filter(lambda x: x != "", next(csvreader)))
+    rows = [row for row in csvreader]
+    self.rows_num = csvreader.line_num
     data = {"data":[],"status":1}
     for row in rows[kwargs['f_a']:kwargs['l_a']]:
      if any(row):

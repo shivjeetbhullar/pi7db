@@ -8,12 +8,12 @@ data = {'exam': 'PHD', 'que': 'fdsf', 'ans': 'gdsgs', 'oans': 'sfd,gsd'}
        
 db.temp_limt = 3
 
-
+print(db.read(IGNORE_COLLECTION="exams"))
 
 
 #print(db.update("exams",data.pop('exam'),{"data":[data]},append_list=True))
-print(db.trash("exams",data.pop('exam'),{"data":[{"$keys":['ans','oans','que'],'$where':{'ans':'gdsgs'}}]}))
-print(db.read('exams'))
+#print(db.trash("exams",data.pop('exam'),{"data":[{"$keys":['ans','oans','que'],'$where':{'ans':'gdsgs'}}]}))
+#print(db.read('exams'))
 #print(db.update({'ds':"ddddddddddddd"},where={'unid':"20205656492644070"}))
 #print(db.read())
 #db.changekey("GodIsGreat","")
@@ -59,6 +59,7 @@ from pi7db import replace_in_list,csv,GT
 
 #print(db.filter({"data":[{"lastPrice":"98.95"}]}))
 #print(db.trash(IGNORE_COLLECTION="sa"))
+
 
 #print(db.exists('000',today=True))
 

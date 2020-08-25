@@ -23,8 +23,11 @@ def unid():
   return f"{crt_time}{random.randint(10000, 99999)}"
 
 def extractfiles(path,Dic_data):
+  if 'IGNORE_COLLECTION' in Dic_data and isinstance(Dic_data['IGNORE_COLLECTION'],str):Dic_data['IGNORE_COLLECTION']=[Dic_data['IGNORE_COLLECTION']]
+  else:Dic_data['IGNORE_COLLECTION']=[]
   remove_files,data_files = [f"{x}" for x in Dic_data['IGNORE']],[]
   for root, dirs, files in os.walk(path):
+      dirs[:] = [d for d in dirs if d not in Dic_data['IGNORE_COLLECTION']]
       for x in files:
         if x not in remove_files:data_files.append(f"{root}/{x}")
   return data_files
@@ -75,7 +78,8 @@ def trashbyfilter(dic_data,key_name,config):
   return True
 
 def nes_update(d_dict, update_dict,keymatch=None,**kwargs):
-    for key, value in update_dict.items():
+    try:
+     for key, value in update_dict.items():
         if isinstance(value, dict) and "$replace" in value:
           for x_v in value['$replace'][0]:
             if x_v in d_dict[key]:d_dict[key].remove(x_v)
@@ -84,7 +88,11 @@ def nes_update(d_dict, update_dict,keymatch=None,**kwargs):
         elif isinstance(value, dict) and key != "$where":    
           if increment_v in value:d_dict[key] = d_dict[key]+value[increment_v]
           elif decrement_v in value:d_dict[key] = d_dict[key]+value[decrement_v]
-          else:d_dict[key] = nes_update(d_dict.get(key, {}), value,keymatch,**kwargs)
+          else:
+            if isinstance(d_dict[key],str):
+              d_dict[key] = update_dict[key]
+              return d_dict
+            else:d_dict[key] = nes_update(d_dict.get(key, {}), value,keymatch,**kwargs)
         elif isinstance(value, list):
           if all(isinstance(s, str) for s in value) or all(isinstance(i, int) for i in value):
             if 'append_list' in kwargs and kwargs['append_list']==True:
@@ -103,6 +111,8 @@ def nes_update(d_dict, update_dict,keymatch=None,**kwargs):
           if key != "$where":
            if keymatch is None:d_dict[key] = value
            elif isinstance(keymatch,dict) and findDiff(keymatch,d_dict):d_dict[key] = value
+    except KeyError:
+      d_dict.update(update_dict)
     return d_dict
 
 def updatebyfilter(dic_data,commands,config):
