@@ -183,10 +183,14 @@ class pi7db:
   def filter(self,*command_tup,**kwargs):
    self.key(self.config)
    un_ex_kwargs,kwargs = kwargs,extract_kwargs(kwargs,self.db_name)
-   if "IGNORE" in kwargs:un_ex_kwargs={"IGNORE":kwargs["IGNORE"]}
+   if "IGNORE" in kwargs:un_ex_kwargs["IGNORE"] = kwargs["IGNORE"]
    if isinstance(command_tup[0],str):command_tup,all_data = list(command_tup[1:]),[command_tup[0]]
    elif 'dict' in kwargs:all_data = kwargs['dict']
-   else:all_data = list(self.status().keys())
+   else:
+     if 'IGNORE_COLLECTION' in kwargs:
+      if isinstance(kwargs['IGNORE_COLLECTION'],str):kwargs['IGNORE_COLLECTION']=[kwargs['IGNORE_COLLECTION']]
+     else:kwargs['IGNORE_COLLECTION']=[]
+     all_data = [x for x in self.status().keys() if x not in kwargs['IGNORE_COLLECTION']]
    r_data,command_arr= {"data":[],'status':1},[]
    if OR in command_tup:
     for x_p in command_tup:

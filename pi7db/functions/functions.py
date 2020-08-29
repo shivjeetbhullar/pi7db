@@ -23,7 +23,8 @@ def unid():
   return f"{crt_time}{random.randint(10000, 99999)}"
 
 def extractfiles(path,Dic_data):
-  if 'IGNORE_COLLECTION' in Dic_data and isinstance(Dic_data['IGNORE_COLLECTION'],str):Dic_data['IGNORE_COLLECTION']=[Dic_data['IGNORE_COLLECTION']]
+  if 'IGNORE_COLLECTION' in Dic_data:
+    if isinstance(Dic_data['IGNORE_COLLECTION'],str):Dic_data['IGNORE_COLLECTION']=[Dic_data['IGNORE_COLLECTION']]
   else:Dic_data['IGNORE_COLLECTION']=[]
   remove_files,data_files = [f"{x}" for x in Dic_data['IGNORE']],[]
   for root, dirs, files in os.walk(path):
