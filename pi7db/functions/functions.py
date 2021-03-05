@@ -44,7 +44,9 @@ def nes_trash(d_dict,update_dict,keymatch=None):
           for x in value:d_dict[key].pop(x)
         elif isinstance(value, list):
           if all(isinstance(s, str) for s in value) or all(isinstance(i, int) for i in value):
-            [d_dict[key].remove(x) for x in value if x in d_dict[key]]
+            if isinstance(d_dict[key], list):[d_dict[key].remove(x) for x in value if x in d_dict[key]]
+            else:
+              for x in value:d_dict[key].pop(x)
           else:
            for x in d_dict[key]:
             for xx in value:
@@ -88,13 +90,13 @@ def nes_update(d_dict, update_dict,keymatch=None,**kwargs):
             if x_v not in d_dict[key]:d_dict[key].append(x_v)
         elif isinstance(value, dict) and key != "$where":    
           if increment_v in value:d_dict[key] = d_dict[key]+value[increment_v]
-          elif decrement_v in value:d_dict[key] = d_dict[key]+value[decrement_v]
+          elif decrement_v in value:d_dict[key] = d_dict[key]-value[decrement_v]
           else:
             if isinstance(d_dict[key],str):
               d_dict[key] = update_dict[key]
               return d_dict
             else:d_dict[key] = nes_update(d_dict.get(key, {}), value,keymatch,**kwargs)
-        elif isinstance(value, list):
+        elif isinstance(value, list) and 'no_list' not in kwargs:
           if all(isinstance(s, str) for s in value) or all(isinstance(i, int) for i in value):
             if 'append_list' in kwargs and kwargs['append_list']==True:
              if isinstance(d_dict[key],list):[d_dict[key].append(x) for x in value if x not in d_dict[key]]
@@ -229,6 +231,9 @@ def checklist(l1,l2):
 
 def findDiff(d1, d2,config={}):
     for key in d1:
+      if key == '**':
+       for lx in d2.keys():
+          if findDiff(d1['**'],d2[lx]) is True:return True
       if (key not in d2):return False
       else:
         if isinstance(d1[key],dict):
@@ -254,3 +259,4 @@ def andfilter(command_tup,all_data,kwargs):
 
 def create_coll(path):
   if not os.path.exists(path):os.mkdir(path)
+

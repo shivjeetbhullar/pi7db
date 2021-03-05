@@ -4,11 +4,11 @@ db = pi7db('Students','Web/DATABASE')
 #db.key("Shivjeet")
 from datetime import datetime
 
-data = {'exam': 'PHD', 'que': 'fdsf', 'ans': 'gdsgs', 'oans': 'sfd,gsd'}
+data = {'examsa': {"name":"sa"}, 'exams': {"name":"saa"},'easa': {"name":"sass"}}
        
 db.temp_limt = 3
 
-print(db.read(IGNORE_COLLECTION="exams"))
+#print(db.read(IGNORE_COLLECTION="exams"))
 
 
 #print(db.update("exams",data.pop('exam'),{"data":[data]},append_list=True))
@@ -39,7 +39,8 @@ print(db.read(IGNORE_COLLECTION="exams"))
 #print(db.write('sd','hellods',{"name":{"test":"test"},"s":"s"}))
 
 
-
+#print(db.write("newl",data))
+#print(db.filter("newl",{"**":{'name':'sa'}}))
 
 #print(db.move.trash())
 #print(OR)
