@@ -1,22 +1,44 @@
-import os,datetime,glob,random,_pickle as pickle
+import os,datetime,glob,random,fcntl,_pickle as pickle
 from ..operators import *
 from .. import cryptopidb as crdb
-from ..status import error,success,info
+from ..status import error,success,info,config_status as statusc
+
+# def create_backup(file_path,data,key):
+#   print(file_path)
+  #with open(f"{file_path}", "wb") as f:pickle.dump(data, f)
 
 def opendoc(file_path,key=None):
      if key is None:
-       with open(f"{file_path}","rb") as f:return pickle.load(f)
+       with open(f"{file_path}","rb") as f:
+        flag = fcntl.fcntl(f.fileno(), fcntl.F_GETFD)
+        fcntl.fcntl(f.fileno(), fcntl.F_SETFL, flag | os.O_NONBLOCK)
+        try:return pickle.load(f)
+        except EOFError:time.sleep(.2);return opendoc(file_path,key)
+        except:return pickle.load(f)
      else:
        data = crdb.decrypt_file(file_path,key.encode())
        return pickle.loads(data)
 
 def writedoc(file_path,data,key=None):
+    #if statusc.recover_status:create_backup(file_path,data,key)
+    try:
      if key is None:
-      with open(f"{file_path}", "wb") as f:pickle.dump(data, f)
-      return True
+      with open(f"{file_path}", "wb") as f:
+        flag = fcntl.fcntl(f.fileno(), fcntl.F_GETFD)
+        fcntl.fcntl(f.fileno(), fcntl.F_SETFL, flag | os.O_NONBLOCK)
+        pickle.dump(data, f)
      else:
       jsdata = pickle.dumps(data);crdb.encrypt_file(file_path,key.encode(),jsdata)
       return True
+    except KeyboardInterrupt:
+      print('\n\nFile Writing In Progress Please Wait Other Wise Data Will Be Corroupted.....')
+      writedoc(file_path,data,key)
+      exit()
+    # finally:
+    #   print('+++++++++++++++++')
+    #   if statusc.writing:writedoc(file_path,data,key)
+    #   statusc.writing=False
+
 
 def unid():
   crt_time = datetime.datetime.now().strftime("%Y%S%f")

@@ -5,8 +5,11 @@ db = pi7db('Students','Web/DATABASE')
 from datetime import datetime
 
 data = {'examsa': {"name":"sa"}, 'exams': {"name":"saa"},'easa': {"name":"sass"}}
+
+print(db.read('12'))
+exit()
        
-db.temp_limt = 3
+#db.temp_limt = 3
 
 #print(db.read(IGNORE_COLLECTION="exams"))
 
@@ -28,6 +31,9 @@ db.temp_limt = 3
 
 
 #print(db.write('users','jim',data))
+
+#print(db.filter('users','jim',{'examsa': {'name': 'sa'}}))
+
 #print(db1.move.write('hell0',dic))
 
 #print(db1.gen.write('hell',dic))
@@ -53,8 +59,16 @@ import random
 from pi7db import replace_in_list,csv,GT
 #db.write("en","000",{"list":["go","yo","no"]})
 #print(db.update("us",{"ds":[5,6]},where={'ds':[1,2]},write=True))
-
+#db.recover_croupt = True
 #db.trash('ss','nn',{"list":[1]})
+#print('ss')
+#print(db.recover_croupt)
+#ss = list(range(1,9999999))
+
+#print('hh')
+#db.write("newl",'aa',{'sa':ss})
+
+db.read("newl",'aa')
 
 #
 

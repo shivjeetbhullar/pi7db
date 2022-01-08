@@ -1,5 +1,5 @@
 import os,errno,hashlib,shutil,datetime,random,csv as csvm
-from .status import error,success,info
+from .status import error,success,info,config_status as statusc
 from .functions.functions import *
 from .functions.subclass import subclass
 from .operators import *
@@ -7,14 +7,23 @@ from pathlib import Path
 
 class pi7db:
   def __init__(self,db_name,db_path=""):
-   self.db_np,self.db_name,self.doc_size,self.temp_limt = os.path.join(db_path,db_name),db_name,15000000,120
+   self.db_np,self._recover_croupt,self.db_name,self.doc_size,self.temp_limt = os.path.join(db_path,db_name),False,db_name,15000000,120
    self.config_file,self.coll_name = os.path.join(self.db_np,db_name),None
    if not os.path.exists(self.db_np):os.makedirs(self.db_np)
    if not os.path.exists(f"{self.config_file}"):
     self.config = {'secret-key':None,'doc_size':self.doc_size}
     writedoc(f"{self.config_file}",self.config)
    else:self.config={'secret-key':None,'doc_size':self.doc_size}
-     
+  
+  @property
+  def recover_croupt(self):
+      return self._recover_croupt
+
+  @recover_croupt.setter
+  def recover_croupt(self, a):
+    self._recover_croupt =statusc.recover_status = a
+    
+
   def __getattr__(self, attrname):
    if attrname == "temp":
     path=self.coll_name=os.path.join(self.db_np,attrname)

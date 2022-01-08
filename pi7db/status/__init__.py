@@ -28,3 +28,7 @@ class success:
     
 class info:
     i0 = {"info":f"Failed! Database Can't Be Deleted In This Way!","status":2}
+
+class config_status:
+ writing = False
+ recover_status = False
