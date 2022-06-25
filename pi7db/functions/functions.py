@@ -1,17 +1,19 @@
-import os,datetime,glob,random,fcntl,_pickle as pickle
+import os,datetime,glob,shutil,random,_pickle as pickle
 from ..operators import *
+from .. import filelock
 from .. import cryptopidb as crdb
 from ..status import error,success,info,config_status as statusc
 
-# def create_backup(file_path,data,key):
-#   print(file_path)
-  #with open(f"{file_path}", "wb") as f:pickle.dump(data, f)
+FileLock = filelock.FileLock
+
+def create_backup(file_path):
+  try:shutil.copyfile(file_path,f"{file_path}.backup")
+  except:pass
 
 def opendoc(file_path,key=None):
      if key is None:
+      with FileLock(f"{file_path}.lock"):
        with open(f"{file_path}","rb") as f:
-        flag = fcntl.fcntl(f.fileno(), fcntl.F_GETFD)
-        fcntl.fcntl(f.fileno(), fcntl.F_SETFL, flag | os.O_NONBLOCK)
         try:return pickle.load(f)
         except EOFError:time.sleep(.2);return opendoc(file_path,key)
         except:return pickle.load(f)
@@ -20,13 +22,14 @@ def opendoc(file_path,key=None):
        return pickle.loads(data)
 
 def writedoc(file_path,data,key=None):
-    #if statusc.recover_status:create_backup(file_path,data,key)
+    if statusc.streturn():create_backup(file_path)
     try:
      if key is None:
-      with open(f"{file_path}", "wb") as f:
-        flag = fcntl.fcntl(f.fileno(), fcntl.F_GETFD)
-        fcntl.fcntl(f.fileno(), fcntl.F_SETFL, flag | os.O_NONBLOCK)
+      with FileLock(f"{file_path}.lock"):
+       with open(f"{file_path}", "wb") as f:
         pickle.dump(data, f)
+        try:os.remove(f"{file_path}.backup")
+        except:pass
      else:
       jsdata = pickle.dumps(data);crdb.encrypt_file(file_path,key.encode(),jsdata)
       return True
@@ -34,15 +37,18 @@ def writedoc(file_path,data,key=None):
       print('\n\nFile Writing In Progress Please Wait Other Wise Data Will Be Corroupted.....')
       writedoc(file_path,data,key)
       exit()
-    # finally:
-    #   print('+++++++++++++++++')
-    #   if statusc.writing:writedoc(file_path,data,key)
-    #   statusc.writing=False
 
 
 def unid():
   crt_time = datetime.datetime.now().strftime("%Y%S%f")
   return f"{crt_time}{random.randint(10000, 99999)}"
+
+def extractbackups(path):
+  data_files=[]
+  for root, dirs, files in os.walk(path):
+      for x in files:
+        if '.backup' in x:data_files.append(f"{root}/{x}")
+  return data_files
 
 def extractfiles(path,Dic_data):
   if 'IGNORE_COLLECTION' in Dic_data:
@@ -52,7 +58,7 @@ def extractfiles(path,Dic_data):
   for root, dirs, files in os.walk(path):
       dirs[:] = [d for d in dirs if d not in Dic_data['IGNORE_COLLECTION']]
       for x in files:
-        if x not in remove_files:data_files.append(f"{root}/{x}")
+        if x not in remove_files and '.backup' not in x:data_files.append(f"{root}/{x}")
   return data_files
 
 def nes_trash(d_dict,update_dict,keymatch=None):
@@ -173,7 +179,7 @@ def appendjson(file_path,data,key=None):
 def writenodoc(col_path,dic_data,config):
      path,files=f"{col_path}/{datetime.date.today().year}",[]
      if not os.path.exists(path):os.makedirs(path)
-     for x in glob.glob(f"{path}/*"):
+     for x in glob.glob(f"{path}/*[!.backup]"):
       if os.path.getsize(x) < config['doc_size']:files.append(x)
      if len(files):
        if isinstance(dic_data,list):

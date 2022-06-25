@@ -32,3 +32,6 @@ class info:
 class config_status:
  writing = False
  recover_status = False
+
+ def streturn():
+  return config_status.recover_status

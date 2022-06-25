@@ -7,22 +7,26 @@ from pathlib import Path
 
 class pi7db:
   def __init__(self,db_name,db_path=""):
-   self.db_np,self._recover_croupt,self.db_name,self.doc_size,self.temp_limt = os.path.join(db_path,db_name),False,db_name,15000000,120
+   self.db_np,self.recover_croupt,self.db_name,self.temp_limt = os.path.join(db_path,db_name),False,db_name,120
    self.config_file,self.coll_name = os.path.join(self.db_np,db_name),None
    if not os.path.exists(self.db_np):os.makedirs(self.db_np)
    if not os.path.exists(f"{self.config_file}"):
     self.config = {'secret-key':None,'doc_size':self.doc_size}
     writedoc(f"{self.config_file}",self.config)
    else:self.config={'secret-key':None,'doc_size':self.doc_size}
+   self.doc_size=10000000
+   self.recoverbackups()
   
-  @property
-  def recover_croupt(self):
-      return self._recover_croupt
+  def recoverbackups(self):
+    for x in extractbackups(f"{self.db_np}"):
+      os.replace(x, x.replace('.backup',''))
 
-  @recover_croupt.setter
-  def recover_croupt(self, a):
-    self._recover_croupt =statusc.recover_status = a
-    
+  def __setattr__(self, name, value):
+        self.__dict__[name] = value
+        if name == 'recover_croupt':
+          self._recover_croupt = statusc.recover_status = value
+        if name == 'doc_size' and self.config:
+          self.config['doc_size'] = value
 
   def __getattr__(self, attrname):
    if attrname == "temp":
@@ -32,9 +36,6 @@ class pi7db:
     return SubClass
   
   def key(self,password):
-   if 'load_point' in self.config:return self.config
-   else:self.config={**opendoc(f"{self.config_file}"),'load_point':1}
-   
    if isinstance(password,dict):
      if password['secret-key'] is None and self.config['secret-key'] is not None:raise ValueError(error.e6)
      else:key=password['secret-key']
